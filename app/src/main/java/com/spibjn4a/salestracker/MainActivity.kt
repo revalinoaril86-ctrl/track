@@ -16,9 +16,13 @@ import androidx.core.content.ContextCompat
 
 class MainActivity : AppCompatActivity() {
 
+    companion object {
+        // URL server dikunci di sini, tidak bisa diubah dari tampilan app.
+        const val SERVER_URL = "https://script.google.com/macros/s/AKfycbyVOSoXyG89YQep__GxdLbZnHb5ZQAqNCKYimfgSJqh4U7fhoFBD0QTDeJOIGHjomsU/exec"
+    }
+
     private lateinit var prefs: SharedPreferences
     private lateinit var etUsername: EditText
-    private lateinit var etServerUrl: EditText
     private lateinit var tvStatus: TextView
 
     private val permissionsRequestCode = 1001
@@ -29,13 +33,13 @@ class MainActivity : AppCompatActivity() {
 
         prefs = getSharedPreferences("sales_tracker_prefs", MODE_PRIVATE)
         etUsername = findViewById(R.id.etUsername)
-        etServerUrl = findViewById(R.id.etServerUrl)
         tvStatus = findViewById(R.id.tvStatus)
 
         etUsername.setText(prefs.getString("username", ""))
-        etServerUrl.setText(
-            prefs.getString("server_url", "http://172.26.47.101/SPIBJN4A/track/track_api.php")
-        )
+
+        // Selalu pastikan server_url tersimpan sesuai konstanta yang dikunci,
+        // menimpa nilai lama apapun yang mungkin masih tersimpan dari versi sebelumnya.
+        prefs.edit().putString("server_url", SERVER_URL).apply()
 
         if (LocationService.isRunning) {
             tvStatus.text = "Status: aktif mengirim lokasi"
@@ -47,16 +51,15 @@ class MainActivity : AppCompatActivity() {
 
     private fun onStartClicked() {
         val username = etUsername.text.toString().trim()
-        val serverUrl = etServerUrl.text.toString().trim()
 
-        if (username.isEmpty() || serverUrl.isEmpty()) {
-            Toast.makeText(this, "Isi nama sales dan URL server dulu", Toast.LENGTH_SHORT).show()
+        if (username.isEmpty()) {
+            Toast.makeText(this, "Isi nama sales dulu", Toast.LENGTH_SHORT).show()
             return
         }
 
         prefs.edit()
             .putString("username", username)
-            .putString("server_url", serverUrl)
+            .putString("server_url", SERVER_URL)
             .apply()
 
         if (hasAllPermissions()) {
