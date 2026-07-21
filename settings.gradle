@@ -1,0 +1,2 @@
+rootProject.name = "SalesTracker"
+include ':app'
